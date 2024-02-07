@@ -44,15 +44,9 @@ def get_pipe_path() -> Path:
 
 
 def get_production_path() -> Path:
-    system = platform.system()
-    if system == "Linux":
-        return Path("/groups/dungeons/production")
-    elif system == "Windows":
-        return Path("G:/dungeons/production")
-    else:
-        raise NotImplementedError(
-            "Production path is not defined for this operating system"
-        )
+    raise NotImplementedError(
+        "Production path is not defined for Shrineflow"
+    )
 
 
 def get_asset_path() -> Path:
