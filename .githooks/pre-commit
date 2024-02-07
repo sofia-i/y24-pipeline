@@ -1,7 +1,8 @@
 #!/bin/bash
 
 set -e
-
+"""
+# NOT USING RUFF - since we're getting issues with python3.9 command not found
 if ! [ -f ~/.local/bin/ruff ]; then
     python3.9 -m pip install ruff
 fi
@@ -10,3 +11,4 @@ LOCAL_DIR=$(git rev-parse --show-toplevel)
 
 echo "Formatting with ruff..."
 ~/.local/bin/ruff format "${LOCAL_DIR}"
+"""
