@@ -24,10 +24,10 @@ rig_path_win = 'G:\\shrineflow\\assets\\Characters\\Rigs\\'
 rig_path_lin = '/groups/shrineflow/assets/Characters/Rigs/'
 
 
-def ref(self, filePath, namespace):
+def ref(filePath, namespace):
     mc.file(filePath, r = True, namespace = namespace)
 
-def rig(self, rig_name):
+def rig(rig_name):
     if platform.system() == 'Windows':
         filePath = f'{rig_path_win}{rig_name}.mb'
     elif platform.system() == 'Linux':
