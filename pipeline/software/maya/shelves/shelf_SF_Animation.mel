@@ -53,7 +53,7 @@ global proc shelf_SF_Animation () {
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "Ninja Camera Position" 
+        -label "Cam Ninja" 
         -labelOffset 0
         -rotation 0
         -flipX 0
@@ -87,7 +87,7 @@ global proc shelf_SF_Animation () {
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "Kitsune Camera Position" 
+        -label "Cam Kitsune" 
         -labelOffset 0
         -rotation 0
         -flipX 0
@@ -121,7 +121,7 @@ global proc shelf_SF_Animation () {
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "Import Ninja" 
+        -label "Rig Ninja" 
         -labelOffset 0
         -rotation 0
         -flipX 0
@@ -150,7 +150,7 @@ global proc shelf_SF_Animation () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Import Kitsune" 
+        -annotation "Rig Kitsune" 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
