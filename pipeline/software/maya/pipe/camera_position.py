@@ -5,9 +5,9 @@ import json
 config_file = "G:\\shrineflow\\config\\camera_location_config.txt"
 ninja_cam_name = "cam_ninja1"
 kitsune_cam_name = "cam_kitsune1"
-ninja_rig_name = "Ninja_Rig"
+ninja_rig_name = "Ninja_Rig:Ninja_Rig"
 # ninja_rig_name = "Ninja_Rig"
-kitsune_rig_name = "Kitsune_Rig"
+kitsune_rig_name = "Kitsune_Rig:Kitsune_Rig"
 # kitsune_rig_name = "Kitsune_Rig"
 
 # TODO:
