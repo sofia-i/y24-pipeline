@@ -47,7 +47,7 @@ def rig(rig_name):
     #     elif rig_name == 'kitsune':
     #         filePath = '/groups/shrineflow/assets/Characters/Rigs/Kitsune_Rig.mb'
 
-    self.ref(filePath, rig_name)
+    ref(filePath, rig_name)
     # self.ref(filePath, rig_name)
 
 '''def camera(self):
