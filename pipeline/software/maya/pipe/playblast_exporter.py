@@ -64,6 +64,8 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         self.reviewListWidget.setFixedWidth(150)
         self.reviewListWidget.addItems(self.reviews)
         self.reviewLayout.addWidget(self.reviewListWidget)
+        
+        # ADD CAMERA SELECT
 
         # BUTTONS
         self.buttonLayout = QtWidgets.QHBoxLayout()
@@ -83,23 +85,23 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         front_view = View(name="FrontView", cameraName="front")
 
         # Back view
-        back_view_camera = mc.camera(orthographic=True, name="backView")
-        mc.move(0, 0, -1000.1)
-        mc.rotate(0, 180, 0)
+        back_view_camera = mc.duplicate("front", name="back")
+        mc.select(back_view_camera)
+        mc.rotate(0, 180, 0, relative=True, objectSpace=True)
+        mc.move(0, 0, 2*-1000.1, relative=True)
+        
         back_view = View(name="BackView", cameraName=back_view_camera)
         self.createdCameras.append(back_view_camera)
 
         # Right view
-        right_view_camera = mc.camera(orthographic=True, name="rightView")
-        mc.move(1000.1, 0, 0)
-        mc.rotate(0, 90, 0)
-        right_view = View(name="RightView", cameraName=right_view_camera)
-        self.createdCameras.append(right_view_camera)
+        right_view = View(name="RightView", cameraName="side")
         
         # Left view
-        left_view_camera = mc.camera(orthographic=True, name="leftView")
-        mc.move(-1000.1, 0, 0)
-        mc.rotate(0, -90, 0)
+        left_view_camera = mc.duplicate("side", name="left")
+        mc.select(left_view_camera)
+        mc.rotate(0, 180, 0, relative=True, objectSpace=True)
+        mc.move(2*-1000.1, 0, 0, relative=True)
+        
         left_view = View(name="LeftView", cameraName=left_view_camera)
         self.createdCameras.append(left_view_camera)
 
