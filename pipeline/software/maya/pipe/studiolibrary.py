@@ -12,7 +12,7 @@ def run():
         shrineflow_path_prefix = '/groups/shrineflow'
         file_delin = '/'
 
-    studio_library_path = f'{shrineflow_path_prefix}{file_delin}pipeline{file_delin}pipeline{file_delin}lib{file_delin}studiolibrary'
+    studio_library_path = f'{shrineflow_path_prefix}{file_delin}y24-pipeline{file_delin}pipeline{file_delin}lib{file_delin}studiolibrary'
     if studio_library_path not in sys.path:
         sys.path.insert(0, studio_library_path)
     import studiolibrary
