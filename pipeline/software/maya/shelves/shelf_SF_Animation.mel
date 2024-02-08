@@ -48,7 +48,7 @@ global proc shelf_SF_Animation () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Ninja Camera Position" 
+        -annotation "Cam Ninja" 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
@@ -59,7 +59,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
-        -imageOverlayLabel "Ninja Camera Position" 
+        -imageOverlayLabel "Cam Ninja" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
         -image "createContainer.png" 
@@ -82,7 +82,7 @@ global proc shelf_SF_Animation () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Kitsune Camera Position" 
+        -annotation "Cam Kitsune" 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
@@ -93,7 +93,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
-        -imageOverlayLabel "Kitsune Camera Position" 
+        -imageOverlayLabel "Cam Kitsune" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
         -image "createContainer.png" 
@@ -116,7 +116,7 @@ global proc shelf_SF_Animation () {
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "Import Ninja" 
+        -annotation "Rig Ninja" 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
@@ -127,7 +127,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
-        -imageOverlayLabel "Import Ninja" 
+        -imageOverlayLabel "Rig Ninja" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
         -image "createContainer.png" 
@@ -135,7 +135,7 @@ global proc shelf_SF_Animation () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from pipe.reference import rig; reference().rig('Ninja_Rig')"
+        -command "from pipe.reference import rig; rig('Ninja_Rig')"
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -155,13 +155,13 @@ global proc shelf_SF_Animation () {
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "Import Kitsune" 
+        -label "Rig Kitsune" 
         -labelOffset 0
         -rotation 0
         -flipX 0
         -flipY 0
         -useAlpha 1
-        -imageOverlayLabel "Import Kitsune" 
+        -imageOverlayLabel "Rig Kitsune" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
         -image "createContainer.png" 
@@ -169,7 +169,7 @@ global proc shelf_SF_Animation () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from pipe.reference import rig; reference().rig('Kitsune_Rig')"
+        -command "from pipe.reference import rig; rig('Kitsune_Rig')"
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
