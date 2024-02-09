@@ -2,8 +2,10 @@
 # https://github.com/Student-Accomplice-Pipeline-Team/accomplice_pipe/blob/prod/pipe/accomplice/software/maya/pipe/animation/playblastExporter.py
 
 import os
+import re
 from PySide2 import QtWidgets, QtCore, QtGui
 import maya.cmds as mc
+from .constants import GAME_CAMERA_NAME
 
 path_to_review_folder = "G:\\shrineflow\\working_files\\Animation\\Review"
 
@@ -43,7 +45,7 @@ class PlayblastExporter(QtWidgets.QMainWindow):
     def setupUI(self):
         self.setWindowTitle("Playblast Exporter")
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.setFixedSize(325, 200)
+        self.setFixedSize(325, 400)
 
         self.mainWidget = QtWidgets.QWidget()
         self.mainLayout = QtWidgets.QVBoxLayout(self.mainWidget)
@@ -65,6 +67,45 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         self.reviewListWidget.addItems(self.reviews)
         self.reviewLayout.addWidget(self.reviewListWidget)
 
+        # CAMERA SELECT
+        self.cameraSelectLayout = QtWidgets.QHBoxLayout()
+        self.mainLayout.addLayout(self.cameraSelectLayout)
+
+        self.cameraLabel = QtWidgets.QLabel("Game Camera")
+        self.cameraSelectLayout.addWidget(self.cameraLabel)
+
+        # add all the scene cameras to the combo box
+        self.cameraComboBox = QtWidgets.QComboBox()
+        all_cameras = mc.ls(type=('camera'))
+        # remove the default cameras
+        custom_cameras = [camera for camera in all_cameras if (not mc.camera(mc.listRelatives(camera,parent=True)[0], startupCamera=True, q=True) or camera=="perspShape")]
+        self.cameraComboBox.addItems(custom_cameras)
+
+        # select one that matches the game camera name, if there is one
+        r = re.compile(f'{GAME_CAMERA_NAME}\w*')
+        game_cameras = list(filter(r.match, custom_cameras))
+        if len(game_cameras) > 0:
+            self.cameraComboBox.setText(game_cameras[0])
+        
+        self.cameraSelectLayout.addWidget(self.cameraComboBox)
+        
+        # VIEW SELECT
+        self.viewSelectionLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout.addLayout(self.viewSelectionLayout)
+
+        self.gameViewCheckBox = QtWidgets.QCheckBox("Game Cam View")
+        self.frontViewCheckBox = QtWidgets.QCheckBox("Front View")
+        self.backViewCheckBox = QtWidgets.QCheckBox("Back View")
+        self.leftViewCheckBox = QtWidgets.QCheckBox("Left View")
+        self.rightViewCheckBox = QtWidgets.QCheckBox("Right View")
+
+        self.viewCheckBoxes = [self.gameViewCheckBox, self.frontViewCheckBox, self.backViewCheckBox, self.leftViewCheckBox, 
+                                self.rightViewCheckBox]
+
+        for viewCheckBox in self.viewCheckBoxes:
+            viewCheckBox.setChecked(True)
+            self.viewSelectionLayout.addWidget(viewCheckBox)
+
         # BUTTONS
         self.buttonLayout = QtWidgets.QHBoxLayout()
         self.mainLayout.addLayout(self.buttonLayout)
@@ -79,34 +120,53 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         self.cancelButton.clicked.connect(self.close)
 
     def setup_views(self):
+        views = []
+
+        # Game Camera view
+        if(self.gameViewCheckBox.isChecked()):
+            game_view = View(name="GameCamView", cameraName=self.cameraComboBox.currentText())
+            views.append(game_view)
+
         # Front view
-        front_view = View(name="FrontView", cameraName="front")
+        if(self.frontViewCheckBox.isChecked()):
+            front_view = View(name="FrontView", cameraName="front")
+            views.append(front_view)
 
         # Back view
-        back_view_camera = mc.camera(orthographic=True, name="backView")
-        mc.move(0, 0, -1000.1)
-        mc.rotate(0, 180, 0)
-        back_view = View(name="BackView", cameraName=back_view_camera)
-        self.createdCameras.append(back_view_camera)
+        if(self.backViewCheckBox.isChecked()):
+            back_view_camera = mc.duplicate("front", name="back")[0]
+            mc.select(back_view_camera)
+            mc.rotate(0, 180, 0, relative=True, objectSpace=True)
+            mc.move(0, 0, 2*-1000.1, relative=True)
+            
+            back_view = View(name="BackView", cameraName=back_view_camera)
+            self.createdCameras.append(back_view_camera)
 
+            views.append(back_view)
+        
         # Right view
-        right_view_camera = mc.camera(orthographic=True, name="rightView")
-        mc.move(1000.1, 0, 0)
-        mc.rotate(0, 90, 0)
-        right_view = View(name="RightView", cameraName=right_view_camera)
-        self.createdCameras.append(right_view_camera)
+        if(self.rightViewCheckBox.isChecked()):
+            right_view = View(name="RightView", cameraName="side")
+            views.append(right_view)
         
         # Left view
-        left_view_camera = mc.camera(orthographic=True, name="leftView")
-        mc.move(-1000.1, 0, 0)
-        mc.rotate(0, -90, 0)
-        left_view = View(name="LeftView", cameraName=left_view_camera)
-        self.createdCameras.append(left_view_camera)
+        if(self.leftViewCheckBox.isChecked()):
+            left_view_camera = mc.duplicate("side", name="left")[0]
+            mc.select(left_view_camera)
+            mc.rotate(0, 180, 0, relative=True, objectSpace=True)
+            mc.move(2*-1000.1, 0, 0, relative=True)
 
-        return [front_view, back_view, right_view, left_view]
+            left_view = View(name="LeftView", cameraName=left_view_camera)
+            self.createdCameras.append(left_view_camera)
+
+            views.append(left_view)
+
+        return views
 
     def discard_cameras(self):
-        pass
+        for camera in self.createdCameras:
+            if mc.objExists(camera):
+                mc.delete(camera)
 
     def playblast(self):
         """Exports a playblast of the current animation to ??."""
@@ -134,7 +194,10 @@ class PlayblastExporter(QtWidgets.QMainWindow):
             print(e)
             return
 
+        # Cleanup
         mc.lookThru(previous_lookthru)
+        self.discard_cameras()
+
         messageBox = QtWidgets.QMessageBox(self)
         messageBox.setText("Playblasts exported successfully!")
         openOutputFolderButton = messageBox.addButton("Open Output Folder", QtWidgets.QMessageBox.AcceptRole)
