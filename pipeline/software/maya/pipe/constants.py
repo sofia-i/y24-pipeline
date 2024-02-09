@@ -1,0 +1,1 @@
+GAME_CAMERA_NAME = "game_camera"
