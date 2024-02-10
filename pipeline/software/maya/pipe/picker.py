@@ -1,5 +1,9 @@
 import sys, os
 
+windows_picker_filepaths = [
+    "G:\\shrineflow\\working_files\\Animation\\Picker_files\\Ninja_Picker.json"
+]
+
 def run():
     shrineflow_path_prefix = ""
     file_delin = ""
@@ -16,4 +20,8 @@ def run():
         sys.path.insert(0, lib_path)
     
     import dwpicker
-    dwpicker.show()
+    if os.name == "nt":
+        # in windows
+        dwpicker.show(pickers=windows_picker_filepaths)
+    else:
+        dwpicker.show()
