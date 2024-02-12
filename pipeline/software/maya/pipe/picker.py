@@ -1,7 +1,8 @@
 import sys, os
 
 windows_picker_filepaths = [
-    "G:\\shrineflow\\working_files\\Animation\\Picker_files\\Ninja_Picker.json"
+    "G:\\shrineflow\\working_files\\Animation\\Picker_files\\Ninja_Picker.json",
+    "G:\\shrineflow\\working_files\\Animation\\Picker_files\\Kitsune_Picker.json"
 ]
 
 def run():
