@@ -3,6 +3,7 @@ import logging
 import pipe
 import os
 import platform
+from . import utils
 
 def logMessage(logName, message):
     logger = logging.getLogger(logName)
@@ -20,18 +21,20 @@ def logMessage(logName, message):
 
 # ninja_rig_name = "Ninja_Rig"
 # kitsune_rig_name = "Kitsune_Rig"
-rig_path_win = 'G:\\shrineflow\\assets\\Characters\\Rigs\\'
-rig_path_lin = '/groups/shrineflow/assets/Characters/Rigs/'
+# rig_path = os.path.join(utils.get_path_to_groups_folder(), "assets", "Characters", "Rigs")
+# rig_path_win = 'G:\\shrineflow\\assets\\Characters\\Rigs\\'
+# rig_path_lin = '/groups/shrineflow/assets/Characters/Rigs/'
 
 
 def ref(filePath, namespace):
     mc.file(filePath, r = True, namespace = namespace)
 
 def rig(rig_name):
-    if platform.system() == 'Windows':
-        filePath = f'{rig_path_win}{rig_name}.mb'
-    elif platform.system() == 'Linux':
-        filePath = f'{rig_path_lin}{rig_name}.mb'
+    filePath = os.path.join(utils.get_path_to_groups_folder(), "assets", "Characters", "Rigs", rig_name)
+    # if platform.system() == 'Windows':
+    #     filePath = f'{rig_path_win}{rig_name}.mb'
+    # elif platform.system() == 'Linux':
+    #     filePath = f'{rig_path_lin}{rig_name}.mb'
 
     # if platform.system() == 'Windows':
     #     # if rig_name == ninja_rig_name:
