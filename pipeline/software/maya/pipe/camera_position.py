@@ -2,12 +2,13 @@ import maya.cmds as cmds
 import json
 import sys, os
 from . import utils
+from . import constants
 # "G:\shrineflow\config\camera_location_config.txt"
 # config_file = "G:\\shrineflow\\pipeline\\pipeline\\software\\maya\\pipe\\camera_location_config.txt"
 config_file = os.path.join(utils.get_path_to_groups_folder(), "config", "camera_location_config.txt")
 # config_file = "G:\\shrineflow\\config\\camera_location_config.txt"
-ninja_cam_name = "cam_ninja1"
-kitsune_cam_name = "cam_kitsune1"
+# ninja_cam_name = "cam_ninja1"
+# kitsune_cam_name = "cam_kitsune1"
 ninja_rig_name = "Ninja_Rig:Ninja_Rig"
 # ninja_rig_name = "Ninja_Rig"
 kitsune_rig_name = "Kitsune_Rig:Kitsune_Rig"
@@ -18,7 +19,9 @@ kitsune_rig_name = "Kitsune_Rig:Kitsune_Rig"
 
 # move the camera to transform (and lock everything)
 def check_camera(nk):
-    camera_name = ninja_cam_name if nk else kitsune_cam_name
+    # camera_name = ninja_cam_name if nk else kitsune_cam_name
+    camera_name = constants.GAME_CAMERA_NAME
+    # camera_name = ninja_cam_name if nk else kitsune_cam_name
     # Use ls command to list objects with the specified name and type
     cameras = cmds.ls(camera_name, type='camera')
 
