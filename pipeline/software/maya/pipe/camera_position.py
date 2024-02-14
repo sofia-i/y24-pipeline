@@ -1,10 +1,14 @@
 import maya.cmds as cmds
 import json
+import sys, os
+from . import utils
+from . import constants
 # "G:\shrineflow\config\camera_location_config.txt"
 # config_file = "G:\\shrineflow\\pipeline\\pipeline\\software\\maya\\pipe\\camera_location_config.txt"
-config_file = "G:\\shrineflow\\config\\camera_location_config.txt"
-ninja_cam_name = "cam_ninja1"
-kitsune_cam_name = "cam_kitsune1"
+config_file = os.path.join(utils.get_path_to_groups_folder(), "config", "camera_location_config.txt")
+# config_file = "G:\\shrineflow\\config\\camera_location_config.txt"
+# ninja_cam_name = "cam_ninja1"
+# kitsune_cam_name = "cam_kitsune1"
 ninja_rig_name = "Ninja_Rig:Ninja_Rig"
 # ninja_rig_name = "Ninja_Rig"
 kitsune_rig_name = "Kitsune_Rig:Kitsune_Rig"
@@ -15,7 +19,9 @@ kitsune_rig_name = "Kitsune_Rig:Kitsune_Rig"
 
 # move the camera to transform (and lock everything)
 def check_camera(nk):
-    camera_name = ninja_cam_name if nk else kitsune_cam_name
+    # camera_name = ninja_cam_name if nk else kitsune_cam_name
+    camera_name = constants.GAME_CAMERA_NAME
+    # camera_name = ninja_cam_name if nk else kitsune_cam_name
     # Use ls command to list objects with the specified name and type
     cameras = cmds.ls(camera_name, type='camera')
 
@@ -79,24 +85,6 @@ def move_camera(nk, camera_name, height=0, scale=1):
     # camera_name = ninja_cam_name if nk else kitsune_cam_name
     data = import_data(nk)
 
-    
-
-    # # Get the active 3D view panel
-    # active_panel = cmds.getPanel(withFocus=True)
-    # if cmds.getPanel(typeOf=active_panel) != "modelPanel":
-    #     print("Error: The active panel is not a 3D view.")
-    #     return
-
-    # # Get the active camera in the panel
-    # active_camera = cmds.modelPanel(active_panel, query=True, camera=True)
-
-    # # Get the camera transform node
-    # camera_transform = cmds.listRelatives(active_camera, parent=True, fullPath=True)
-
-    # if not active_camera or not camera_transform:
-    #     print("Error: Unable to retrieve active camera or its transform.")
-    #     return
-
     # Set the target coordinates
     target_coordinates = (-data.get("try", 0) * scale, (data.get("trz", 0) * scale) + (height / 2), data.get("trx", 0) * scale)
     # target_coordinates = (data.get("trx", 0), data.get("try", 0), data.get("trz", 0))
@@ -129,42 +117,5 @@ def run(nk):
     move_camera(nk,camera_name, height, scale)
     lock_camera(nk, camera_name)
 
-    # check for existing camera (depending)
-    # if exist, grab that camera
-    # else, make that camera
 
 
-# import maya.cmds as cmds
-# import json
-
-# config_file = "G:\\shrineflow\\pipeline\\pipeline\\software\\maya\\pipe\\camera_location_config.txt"
-
-# # struct coordinates:
-
-# def move_active_camera_to_coordinates(nk):
-#     file = open(config_file,"r")
-#     imported_data = json.loads(file.read())
-#     # data = json.loads(file.readline())
-#     print(imported_data)
-
-#     # get data based on ninja or kitsune
-#     data = None
-#     if nk:
-#         data = imported_data.get("ninja") 
-#     else:
-#         data = imported_data.get("kitsune")
-    
-#     # Get the active 3D view
-#     active_panel = cmds.getPanel(withFocus=True)
-
-#     # Get the active camera in the panel
-#     active_camera = cmds.modelPanel(active_panel, query=True, camera=True)
-
-#     # Get the camera transform node
-#     camera_transform = cmds.listRelatives(active_camera, parent=True, fullPath=True)[0]
-
-#     # Set the target coordinates
-#     target_coordinates = (data.get("x"), data.get("y"), data.get("z"))
-
-#     # Move the camera to the specified coordinates
-#     cmds.xform(camera_transform, translation=target_coordinates, worldSpace=True)
