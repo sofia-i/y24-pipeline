@@ -6,8 +6,10 @@ import re
 from PySide2 import QtWidgets, QtCore, QtGui
 import maya.cmds as mc
 from .constants import GAME_CAMERA_NAME
+from . import utils
 
-path_to_review_folder = "G:\\shrineflow\\working_files\\Animation\\Review"
+review_folder_path_elements = ["working_files", "Animation", "Review"]
+path_to_review_folder = os.path.join(utils.get_path_to_groups_folder(), *review_folder_path_elements)
 
 class View():
     def __init__(self, name, cameraName):
