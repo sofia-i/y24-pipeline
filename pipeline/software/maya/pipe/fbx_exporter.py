@@ -14,12 +14,15 @@ Note: This will only work on Windows (because that's all the FBXGameExporter sup
 '''
 import maya.cmds as mc
 import maya.mel as mel
+import os
+from . import utils
 
 character_options = ["Kitsune", "Ninja"]
-destination_path = "G:\\shrineflow\\assets\\Animation"
+destination_path_elements = ["assets", "Animation"]
+destination_path = os.path.join(utils.get_path_to_groups_folder(), *destination_path_elements)
 character_destination_paths = {
-    "Kitsune": "G:\\shrineflow\\assets\\Animation\\Kitsune",
-    "Ninja": "G:\\shrineflow\\assets\\Animation\\Ninja",
+    "Kitsune": os.path.join(destination_path, "Kitsune"),
+    "Ninja": os.path.join(destination_path, "Ninja")
 }
 
 def close_window(window_name):
