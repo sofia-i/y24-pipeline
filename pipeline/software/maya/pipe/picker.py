@@ -1,28 +1,24 @@
 import sys, os
+from . import utils
 
-windows_picker_filepaths = [
-    "G:\\shrineflow\\working_files\\Animation\\Picker_files\\Ninja_Picker.json",
-    "G:\\shrineflow\\working_files\\Animation\\Picker_files\\Kitsune_Picker.json"
+path_to_picker = ["working_files", "Animation", "Picker_files"]
+
+picker_filenames = [
+    "Ninja_Picker.json",
+    "Kitsune_Picker.json"
 ]
 
 def run():
-    shrineflow_path_prefix = ""
-    file_delin = ""
-    if os.name == "nt":
-        # we're in windows
-        shrineflow_path_prefix = 'G:\\shrineflow'
-        file_delin = '\\'
-    else:
-        shrineflow_path_prefix = '/groups/shrineflow'
-        file_delin = '/'
+    pipeline_path = utils.get_path_to_pipe()
+    lib_path = os.path.join(pipeline_path, "pipeline", "lib")
 
-    lib_path = f'{shrineflow_path_prefix}{file_delin}y24-pipeline{file_delin}pipeline{file_delin}lib'
     if lib_path not in sys.path:
         sys.path.insert(0, lib_path)
     
     import dwpicker
-    if os.name == "nt":
-        # in windows
-        dwpicker.show(pickers=windows_picker_filepaths)
-    else:
-        dwpicker.show()
+
+    picker_folder_path = os.path.join(utils.get_path_to_groups_folder(), *path_to_picker)
+    picker_filepaths = [os.path.join(picker_folder_path, picker_filename) for picker_filename in picker_filenames]
+    print("Picker filepaths", picker_filepaths)
+
+    dwpicker.show(pickers=picker_filepaths)
