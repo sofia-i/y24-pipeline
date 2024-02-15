@@ -6,7 +6,7 @@ def get_path_to_pipe():
         return "G:\\shrineflow\\y24-pipeline"
     else:
         # LINUX
-        return "groups/shrineflow/y24-pipeline"
+        return "/groups/shrineflow/y24-pipeline"
 
 def get_path_to_groups_folder():
     if os.name == "nt":
@@ -14,5 +14,5 @@ def get_path_to_groups_folder():
         return "G:\\shrineflow"
     else:
         # LINUX
-        return "groups/shrineflow"
+        return "/groups/shrineflow"
         
