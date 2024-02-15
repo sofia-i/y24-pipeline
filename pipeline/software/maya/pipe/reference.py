@@ -22,6 +22,6 @@ def ref(filePath, namespace):
     mc.file(filePath, r = True, namespace = namespace)
 
 def rig(rig_name):
-    filePath = os.path.join(utils.get_path_to_groups_folder(), "assets", "Characters", "Rigs", rig_name)
+    filePath = os.path.join(utils.get_path_to_groups_folder(), "assets", "Characters", "Rigs", f'{rig_name}.mb')
 
     ref(filePath, rig_name)
