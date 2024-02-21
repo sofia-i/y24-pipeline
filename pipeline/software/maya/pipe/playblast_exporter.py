@@ -87,7 +87,10 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         r = re.compile(f'{GAME_CAMERA_NAME}\w*')
         game_cameras = list(filter(r.match, custom_cameras))
         if len(game_cameras) > 0:
-            self.cameraComboBox.setText(game_cameras[0])
+            try:
+                self.cameraComboBox.setCurrentText(game_cameras[0])
+            except:
+                print("Exception when trying to pull game camera. Select game camera manually.")
         
         self.cameraSelectLayout.addWidget(self.cameraComboBox)
         
