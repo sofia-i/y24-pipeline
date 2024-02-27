@@ -312,7 +312,7 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         elif LEFT_VIEW_NAME not in files:
             raise Exception("Left not found")
         
-        video_paths = [f'{path}{VIDEO_EXTENSION}' for path in files.values()]
+        video_paths = [f'{path}{VIDEO_EXTENSION}' for path in [files[GAME_CAM_VIEW_NAME], files[FRONT_VIEW_NAME], files[RIGHT_VIEW_NAME], files[LEFT_VIEW_NAME]]]
         output_path = f"{filepath_base}_{COMPOSITE_VIEW_NAME}.mp4"
         ffmpeg_command = self.construct_ffmpeg_cmd(video_paths, output_path)
 
