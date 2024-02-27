@@ -1,15 +1,34 @@
 # Adopted from Student Accomplice
 # https://github.com/Student-Accomplice-Pipeline-Team/accomplice_pipe/blob/prod/pipe/accomplice/software/maya/pipe/animation/playblastExporter.py
 
-import os
+import os, sys
+import subprocess
 import re
 from PySide2 import QtWidgets, QtCore, QtGui
 import maya.cmds as mc
 from .constants import GAME_CAMERA_NAME
 from . import utils
 
+GAME_CAM_VIEW_NAME = "GameCamView"
+FRONT_VIEW_NAME = "FrontView"
+BACK_VIEW_NAME = "BackView"
+LEFT_VIEW_NAME = "LeftView"
+RIGHT_VIEW_NAME = "RightView"
+COMPOSITE_VIEW_NAME = "Grid"
+
 review_folder_path_elements = ["working_files", "Animation", "Review"]
 path_to_review_folder = os.path.join(utils.get_path_to_groups_folder(), *review_folder_path_elements)
+
+ffmpeg_path_elements = ["pipeline", "lib", "ffmpeg_exe", "ffmpeg"]
+FFMPEG_PATH = os.path.join(utils.get_path_to_pipe(), *ffmpeg_path_elements)
+
+VIDEO_EXTENSION = ""
+if os.name == "nt":
+    # WINDOWS
+    VIDEO_EXTENSION = ".avi"
+else:
+    # LINUX
+    VIDEO_EXTENSION = ".mov"
 
 class View():
     def __init__(self, name, cameraName):
@@ -42,12 +61,20 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         return raw_name
 
     def getReviews(self):
-        return [name for name in os.listdir(path_to_review_folder) if os.path.isdir(os.path.join(path_to_review_folder, name))]
+        reviews = [name for name in os.listdir(path_to_review_folder) if os.path.isdir(os.path.join(path_to_review_folder, name))]
+        reviews.sort(reverse=True)
+        return reviews
+    
+    def updateGridAvailable(self, value):
+        if(not value):
+            self.compositeViewCheckBox.setEnabled(False)
+        elif(self.gameViewCheckBox.isChecked() and self.frontViewCheckBox.isChecked() and self.leftViewCheckBox.isChecked() and self.rightViewCheckBox.isChecked()):
+            self.compositeViewCheckBox.setEnabled(True)
 
     def setupUI(self):
         self.setWindowTitle("Playblast Exporter")
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.setFixedSize(325, 400)
+        self.setFixedSize(325, 425)
 
         self.mainWidget = QtWidgets.QWidget()
         self.mainLayout = QtWidgets.QVBoxLayout(self.mainWidget)
@@ -103,6 +130,10 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         self.backViewCheckBox = QtWidgets.QCheckBox("Back View")
         self.leftViewCheckBox = QtWidgets.QCheckBox("Left View")
         self.rightViewCheckBox = QtWidgets.QCheckBox("Right View")
+        self.compositeViewCheckBox = QtWidgets.QCheckBox("Combined Grid")
+
+        for checkBox in [self.gameViewCheckBox, self.frontViewCheckBox, self.rightViewCheckBox, self.leftViewCheckBox]:
+            checkBox.stateChanged.connect(self.updateGridAvailable)
 
         self.viewCheckBoxes = [self.gameViewCheckBox, self.frontViewCheckBox, self.backViewCheckBox, self.leftViewCheckBox, 
                                 self.rightViewCheckBox]
@@ -110,6 +141,15 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         for viewCheckBox in self.viewCheckBoxes:
             viewCheckBox.setChecked(True)
             self.viewSelectionLayout.addWidget(viewCheckBox)
+
+        # Composite menu
+        self.compositeSelectLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout.addLayout(self.compositeSelectLayout)
+        self.compositeLabel = QtWidgets.QLabel("Combine views into grid (must have Game, Front, Right, and Left checked)")
+        self.compositeLabel.setWordWrap(True)
+        self.compositeSelectLayout.addWidget(self.compositeLabel)
+        self.compositeViewCheckBox.setChecked(True)
+        self.compositeSelectLayout.addWidget(self.compositeViewCheckBox)
 
         # BUTTONS
         self.buttonLayout = QtWidgets.QHBoxLayout()
@@ -129,12 +169,12 @@ class PlayblastExporter(QtWidgets.QMainWindow):
 
         # Game Camera view
         if(self.gameViewCheckBox.isChecked()):
-            game_view = View(name="GameCamView", cameraName=self.cameraComboBox.currentText())
+            game_view = View(name=GAME_CAM_VIEW_NAME, cameraName=self.cameraComboBox.currentText())
             views.append(game_view)
 
         # Front view
         if(self.frontViewCheckBox.isChecked()):
-            front_view = View(name="FrontView", cameraName="front")
+            front_view = View(name=FRONT_VIEW_NAME, cameraName="front")
             views.append(front_view)
 
         # Back view
@@ -144,14 +184,14 @@ class PlayblastExporter(QtWidgets.QMainWindow):
             mc.rotate(0, 180, 0, relative=True, objectSpace=True)
             mc.move(0, 0, 2*-1000.1, relative=True)
             
-            back_view = View(name="BackView", cameraName=back_view_camera)
+            back_view = View(name=BACK_VIEW_NAME, cameraName=back_view_camera)
             self.createdCameras.append(back_view_camera)
 
             views.append(back_view)
         
         # Right view
         if(self.rightViewCheckBox.isChecked()):
-            right_view = View(name="RightView", cameraName="side")
+            right_view = View(name=RIGHT_VIEW_NAME, cameraName="side")
             views.append(right_view)
         
         # Left view
@@ -161,7 +201,7 @@ class PlayblastExporter(QtWidgets.QMainWindow):
             mc.rotate(0, 180, 0, relative=True, objectSpace=True)
             mc.move(2*-1000.1, 0, 0, relative=True)
 
-            left_view = View(name="LeftView", cameraName=left_view_camera)
+            left_view = View(name=LEFT_VIEW_NAME, cameraName=left_view_camera)
             self.createdCameras.append(left_view_camera)
 
             views.append(left_view)
@@ -173,35 +213,67 @@ class PlayblastExporter(QtWidgets.QMainWindow):
             if mc.objExists(camera):
                 mc.delete(camera)
 
+    def setup_progress_ui(self, num_tasks):
+        self.progressWindow = mc.window(title="Playblast Progress")
+        mc.columnLayout()
+        self.progressTextLabel = mc.text(label='Playblasting...', width=300)
+        self.progressControl = mc.progressBar(maxValue=num_tasks, width=300)
+        mc.showWindow(self.progressWindow)
+
+        return self.progressControl
+
     def playblast(self):
         """Exports a playblast of the current animation to ??."""
         currentReview = f"{self.reviewListWidget.currentItem().text()}"
         filepath_folder = os.path.join(path_to_review_folder, currentReview)
         filepath_base = os.path.join(filepath_folder, self.filename)
 
-        print(filepath_base)
+        do_composite = self.compositeViewCheckBox.isEnabled() and self.compositeViewCheckBox.isChecked()
+
+        # print(filepath_base)
 
         previous_lookthru = mc.lookThru(q=True)
         
         views = self.setup_views()
+
+        num_tasks = len(views)
+        if do_composite: 
+            num_tasks += 1
+        progressControl = self.setup_progress_ui(num_tasks)
+
+        result_files = {}
         try:
             for view in views:
                 filepath = f'{filepath_base}_{view.name}'
                 mc.lookThru(view.cameraName)
                 # mc.playblast(f=filepath, forceOverwrite=True, viewer=False, percent=self.videoScalePct,
                 #          format=self.videoFormat, compression=self.videoCompression, widthHeight = [self.width, self.height])
-                mc.playblast(f=filepath, forceOverwrite=True, viewer=False, percent=self.videoScalePct,
+                result = mc.playblast(f=filepath, forceOverwrite=True, viewer=False, percent=self.videoScalePct,
                                 widthHeight = [self.width, self.height])
+                result_files[view.name] = result
+                # Progress UI
+                mc.progressBar(progressControl, edit=True, step=1)
             
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Error",
                                            "Error exporting playblasts. See the script editor for details.")
-            print(e)
+            mc.error(f"Error while playblasting: {e}")
             return
 
         # Cleanup
         mc.lookThru(previous_lookthru)
         self.discard_cameras()
+
+        # Composite a grid video
+        if do_composite:
+            try:
+                self.composite(filepath_base, result_files)
+
+                mc.progressBar(progressControl, edit=True, step=1)
+            except Exception as e:
+                print(f"Composite failed, exception: {e}")
+
+        mc.deleteUI(self.progressWindow)
 
         messageBox = QtWidgets.QMessageBox(self)
         messageBox.setText("Playblasts exported successfully!")
@@ -211,6 +283,45 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         closeButton = messageBox.addButton("Close", QtWidgets.QMessageBox.RejectRole)
         closeButton.clicked.connect(self.close)
         messageBox.exec_()
+
+    def construct_ffmpeg_cmd(self, input_video_paths, output_path, 
+                             width=1920, height=1080, grid_width=2, grid_height=2):
+        # Taken from https://stackoverflow.com/questions/63993922/how-to-merge-several-videos-in-a-grid-in-one-video
+        input_videos = ""
+        input_setpts = "nullsrc=size={}x{} [base];".format(width, height)
+        input_overlays = "[base][video0] overlay=shortest=1 [tmp0];"
+        for index, path_video in enumerate(input_video_paths):
+                input_videos += " -i " + path_video
+                input_setpts += "[{}:v] setpts=PTS-STARTPTS, scale={}x{} [video{}];".format(index, width//grid_width, height//grid_height, index)
+                if index > 0 and index < len(input_video_paths) - 1:
+                    input_overlays += "[tmp{}][video{}] overlay=shortest=1:x={}:y={} [tmp{}];".format(index-1, index, width//grid_width * (index%grid_width), height//grid_height * (index//grid_width), index)
+                if index == len(input_video_paths) - 1:
+                    input_overlays += "[tmp{}][video{}] overlay=shortest=1:x={}:y={}".format(index-1, index, width//grid_width * (index%grid_width), height//grid_height * (index//grid_width))
+
+        complete_command = FFMPEG_PATH + " " + input_videos + " -filter_complex \"" + input_setpts + input_overlays + "\" -c:v libx264 " + output_path
+
+        return complete_command
+
+    def composite(self, filepath_base: str, files: dict):
+        if GAME_CAM_VIEW_NAME not in files:
+            raise Exception("Game cam not found")
+        elif FRONT_VIEW_NAME not in files:
+            raise Exception("Front not found")
+        elif RIGHT_VIEW_NAME not in files:
+            raise Exception("Right not found")
+        elif LEFT_VIEW_NAME not in files:
+            raise Exception("Left not found")
+        
+        video_paths = [f'{path}{VIDEO_EXTENSION}' for path in files.values()]
+        output_path = f"{filepath_base}_{COMPOSITE_VIEW_NAME}.mp4"
+        ffmpeg_command = self.construct_ffmpeg_cmd(video_paths, output_path)
+
+        try:
+            process = subprocess.Popen(ffmpeg_command, shell=True)
+            process.communicate()
+            process.wait()
+        except Exception as e:
+            mc.confirmDialog(icon = 'critical', title = 'Error', message = 'Following error occurred while compiling video \n{}'.format(e))
 
     def run(self):
         self.show()
