@@ -19,16 +19,17 @@ COMPOSITE_VIEW_NAME = "Grid"
 review_folder_path_elements = ["working_files", "Animation", "Review"]
 path_to_review_folder = os.path.join(utils.get_path_to_groups_folder(), *review_folder_path_elements)
 
-ffmpeg_path_elements = ["pipeline", "lib", "ffmpeg_exe", "ffmpeg"]
-FFMPEG_PATH = os.path.join(utils.get_path_to_pipe(), *ffmpeg_path_elements)
-
+FFMPEG_PATH = ""
 VIDEO_EXTENSION = ""
 if os.name == "nt":
     # WINDOWS
     VIDEO_EXTENSION = ".avi"
+    ffmpeg_path_elements = ["pipeline", "lib", "ffmpeg_exe", "ffmpeg"]
 else:
     # LINUX
     VIDEO_EXTENSION = ".mov"
+    ffmpeg_path_elements = ["pipeline", "lib", "ffmpeg", "ffmpeg"]
+FFMPEG_PATH = os.path.join(utils.get_path_to_pipe(), *ffmpeg_path_elements)
 
 class View():
     def __init__(self, name, cameraName):
@@ -315,6 +316,9 @@ class PlayblastExporter(QtWidgets.QMainWindow):
         video_paths = [f'{path}{VIDEO_EXTENSION}' for path in [files[GAME_CAM_VIEW_NAME], files[FRONT_VIEW_NAME], files[RIGHT_VIEW_NAME], files[LEFT_VIEW_NAME]]]
         output_path = f"{filepath_base}_{COMPOSITE_VIEW_NAME}.mp4"
         ffmpeg_command = self.construct_ffmpeg_cmd(video_paths, output_path)
+        # if not os.name == "nt":
+            # linux
+        #     ffmpeg_command = ffmpeg_command.split()
 
         try:
             process = subprocess.Popen(ffmpeg_command, shell=True)
