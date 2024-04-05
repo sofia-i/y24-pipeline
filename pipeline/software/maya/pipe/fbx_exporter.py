@@ -79,13 +79,14 @@ def run_ui():
 
     mc.showWindow(window)
 
-def export(selected_character, tpose: bool = False, anim: bool = False):
+# for anim = export(get_selected_character(), tpose=False, anim=True)
+def export(selected_character, tpose: bool = False, anim: bool = False, path:list = []):
     print("Export called on ", selected_character, " tpose: ", tpose, " anim: ", anim)
     if selected_character not in character_options:
         mc.error("Error selecting character: selected character ", selected_character, " not in options (", character_options, ")")
         return
 
-    rigSet = mc.ls(sl=True)[0]
+    # rigSet = mc.ls(sl=True)[0]
     # "ed:EXPORTSET_Unreal"
     # "letty:EXPORTSET_Unreal"
     # "vaughn:EXPORTSET_Unreal"
@@ -96,8 +97,9 @@ def export(selected_character, tpose: bool = False, anim: bool = False):
     mc.loadPlugin( 'gameFbxExporter.mll' )
 
     origSel = mc.ls(sl=True)
-
-    mc.select(rigSet)
+    rig_set_name = f"{selected_character}_Rig:EXPORTSET_Unreal"
+    mc.select(rig_set_name)
+    # mc.select(rigSet)
     mel.eval('gameFbxExporter;')
 
     #switch to model tab
@@ -131,7 +133,7 @@ def export(selected_character, tpose: bool = False, anim: bool = False):
 
     #set the animation export path
     mc.setAttr('gameExporterPreset2.exportFilename',sceneName + '',type='string')
-    mc.setAttr('gameExporterPreset2.exportPath',character_destination_paths[selected_character],type='string')
+    mc.setAttr('gameExporterPreset2.exportPath',os.path.join(character_destination_paths[selected_character],path),type='string')
     mc.setAttr('gameExporterPreset2.exportSetIndex',2)
     mc.setAttr('gameExporterPreset2.animClips[0].animClipName', '_ANIM', type='string' )
 
