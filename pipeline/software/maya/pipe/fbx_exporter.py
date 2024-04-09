@@ -17,12 +17,15 @@ import maya.mel as mel
 import os
 from . import utils
 
-character_options = ["Kitsune", "Ninja"]
+character_options_old = ["Kitsune", "Ninja"]
+character_options = ["Kitsune", "Ninja","Barrel","Lantern"]
 destination_path_elements = ["assets", "Animation"]
 destination_path = os.path.join(utils.get_path_to_groups_folder(), *destination_path_elements)
 character_destination_paths = {
     "Kitsune": os.path.join(destination_path, "Kitsune"),
-    "Ninja": os.path.join(destination_path, "Ninja")
+    "Ninja": os.path.join(destination_path, "Ninja"),
+    "Barrel": os.path.join(destination_path, "Props", "Barrel"),
+    "Lantern": os.path.join(destination_path, "Props", "Lantern")
 }
 
 def close_window(window_name):
@@ -39,10 +42,11 @@ def run_ui():
             mc.text(text, edit=True, enable=False)
             mc.text(text, edit=True, visible=False)
 
+    close_game_exporter()
     window = mc.window("fbx_exporter", title="Unreal Rig Exporter")
     mc.columnLayout(adjustableColumn=True, rowSpacing=5)
     # Character select buttons
-    character_select = mc.radioButtonGrp(label="Character", labelArray2=character_options, numberOfRadioButtons=2, onCommand=enableButtons, 
+    character_select = mc.radioButtonGrp(label="Character", labelArray2=character_options_old, numberOfRadioButtons=2, onCommand=enableButtons, 
                                             columnAlign3=["left", "left", "left"], columnAttach3=["left", "left", "left"], columnOffset3=[2, 2, 2])
 
     def get_selected_character():
@@ -79,8 +83,12 @@ def run_ui():
 
     mc.showWindow(window)
 
+def close_game_exporter():
+    if mc.window("gameExporterWindow", exists=True):
+            mc.deleteUI("gameExporterWindow")
+
 # for anim = export(get_selected_character(), tpose=False, anim=True)
-def export(selected_character, tpose: bool = False, anim: bool = False, path:list = []):
+def export(selected_character, tpose: bool = False, anim: bool = False, path: list = [], close:bool = False):
     print("Export called on ", selected_character, " tpose: ", tpose, " anim: ", anim)
     if selected_character not in character_options:
         mc.error("Error selecting character: selected character ", selected_character, " not in options (", character_options, ")")
@@ -98,7 +106,8 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
 
     origSel = mc.ls(sl=True)
     rig_set_name = f"{selected_character}_Rig:EXPORTSET_Unreal"
-    mc.select(rig_set_name)
+    mc.select(clear=True)
+    mc.select(rig_set_name, ne=True)
     # mc.select(rigSet)
     mel.eval('gameFbxExporter;')
 
@@ -106,7 +115,10 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
     mel.eval('gameExp_ChangeExportType(1);')
     mel.eval("gameExp_CurrentTabChanged();")
     mel.eval("gameExp_UpdatePrefix();")
-    mel.eval("gameExp_PopulatePresetList();gameExp_CreateExportTypeUIComponents();")
+    # mel.eval("gameExp_PopulatePresetList();") #TODO: Figure out what lines shouldn't be called 2 times, only run them if it's the first time
+    # if first:
+    mel.eval("gameExp_PopulatePresetList();gameExp_CreateExportTypeUIComponents();") #TODO: Figure out what lines shouldn't be called 2 times, only run them if it's the first time
+        # mel.eval("gameExp_CreateExportTypeUIComponents();")
 
 
     sceneNameLong = mc.file(q=True, sn=True, shn=True)
@@ -114,11 +126,15 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
     scenePath = mc.file(q=True, sn=True).replace(sceneNameLong, '')
 
     #switch to 'export selection' mode
-    mel.eval('''setAttr("gameExporterPreset1.exportSetIndex") `optionMenu -q -select model_gameExporterExportSet`; gameExp_CreateExportTypeUIComponents;''')
+    # mel.eval('''setAttr("gameExporterPreset1.exportSetIndex") `optionMenu -q -select model_gameExporterExportSet`; gameExp_CreateExportTypeUIComponents;''')
+    mel.eval('''setAttr("gameExporterPreset1.exportSetIndex") `optionMenu -q -select model_gameExporterExportSet`;''')
+    
+        # mel.eval('''gameExp_CreateExportTypeUIComponents;''')
 
     #set the tpose export path
     mc.setAttr('gameExporterPreset1.exportFilename',sceneName + '_TPOSE',type='string')
-    mc.setAttr('gameExporterPreset1.exportPath',character_destination_paths[selected_character],type='string')
+    mc.setAttr('gameExporterPreset1.exportPath',os.path.join(character_destination_paths[selected_character],*path),type='string')
+    # mc.setAttr('gameExporterPreset1.exportPath',character_destination_paths[selected_character],type='string')
     mc.setAttr('gameExporterPreset1.exportSetIndex',2)
 
     #switch to the "Animation Clips" tab
@@ -133,7 +149,7 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
 
     #set the animation export path
     mc.setAttr('gameExporterPreset2.exportFilename',sceneName + '',type='string')
-    mc.setAttr('gameExporterPreset2.exportPath',os.path.join(character_destination_paths[selected_character],path),type='string')
+    mc.setAttr('gameExporterPreset2.exportPath',os.path.join(character_destination_paths[selected_character],*path),type='string')
     mc.setAttr('gameExporterPreset2.exportSetIndex',2)
     mc.setAttr('gameExporterPreset2.animClips[0].animClipName', '_ANIM', type='string' )
 
@@ -145,6 +161,8 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
     mc.setAttr("gameExporterPreset2.animClips[0].animClipStart",timelineStart)
     mc.setAttr("gameExporterPreset2.animClips[0].animClipEnd",timelineEnd)
     if tpose:
+        mel.eval("global proc int gameExp_OverwriteExistingFile(string $path){return 1;}")
+        mel.eval("global proc gameExp_ShowMessage(string $message, int $msgType){$hi = 1;}")
         mel.eval("gameExp_DoExport")
 
     #switch to "Animation Clips" tab and export animation
@@ -154,7 +172,13 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
     mel.eval("gameExp_PopulatePresetList();gameExp_CreateExportTypeUIComponents();")
     if anim:
         mc.select(hi=True)
+        mel.eval("global proc int gameExp_OverwriteExistingFile(string $path){return 1;}")
+        mel.eval("global proc gameExp_ShowMessage(string $message, int $msgType){$hi = 1;}")
         mel.eval("gameExp_DoExport")
+
+    # window = mc.window("anything",fw=True)
+    # print(window)
+    # close_window("game_exporter")
 
     #Query which tab is active in the game exporter
     #tabLayout  -q -selectTabIndex "gameExporterTabLayout"
@@ -162,6 +186,9 @@ def export(selected_character, tpose: bool = False, anim: bool = False, path:lis
     #mel.eval("gameExp_SetUniqueAnimationClipName 0" + '''"_CLIP"''' + "gameExporterWindow|gameExporterTabFormLayout|gameExporterTabLayout|gameExporterAnimationTab|anim_gameExporterMainFormLayout|anim_gameExporterExportTypeFormLayout|formLayout433|anim_gameFbxExporterAnimClipFrameLayout|anim_gameFbxExporterAnimClipFormLayout|anim_gameFbxExporterScrollLayout|formLayout446|textField6;")
 
     mc.select(origSel)
+    if close:
+        close_game_exporter()
+    
 
 
 

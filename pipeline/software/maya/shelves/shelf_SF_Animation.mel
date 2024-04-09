@@ -25,6 +25,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Studio Library" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -59,6 +60,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Cam Ninja" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -93,6 +95,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Cam Kitsune" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -127,6 +130,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Rig Ninja" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -161,6 +165,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Rig Kitsune" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -195,6 +200,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "FBX Export" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -229,6 +235,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "AutoExporter" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -263,6 +270,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Playblast" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -297,6 +305,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Picker" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -331,6 +340,7 @@ global proc shelf_SF_Animation () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "Pipe Reload" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
@@ -340,6 +350,40 @@ global proc shelf_SF_Animation () {
         -marginWidth 0
         -marginHeight 1
         -command "from importlib import reload; reload(pipe)" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 32
+        -enable 1
+        -width 39
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "animBot Toggle - This will toggle animBot toolbar ON and OFF." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "animBot - animBot Toggle" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "/usr/autodesk/ApplicationPlugins/animBot/2.4.8/animBot/_resources/img/icons_shelf/white/create_toggle_button_on_shelf_shelf.png" 
+        -image1 "/usr/autodesk/ApplicationPlugins/animBot/2.4.8/animBot/_resources/img/icons_shelf/white/create_toggle_button_on_shelf_shelf.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from animBot._api.core import CORE as ANIMBOT_CORE; ANIMBOT_CORE.trigger.animBotMenu_toggle();" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1

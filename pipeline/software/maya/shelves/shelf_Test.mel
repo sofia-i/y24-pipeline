@@ -25,7 +25,6 @@ global proc shelf_Test () {
         -flipX 0
         -flipY 0
         -useAlpha 1
-        -font "plainLabelFont" 
         -imageOverlayLabel "Apart Asset" 
         -overlayLabelColor 2.624876 0.801436 0.012446 
         -overlayLabelBackColor 0.227129 0.227129 0.227129 0.5 
