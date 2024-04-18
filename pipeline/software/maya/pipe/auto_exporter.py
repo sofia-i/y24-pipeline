@@ -25,6 +25,10 @@ character_destination_paths = {
 
 file_types = ["ANIM","TPOSE"]
 
+def delete_file(anim_path):
+    if os.path.exists(anim_path):
+        print("removing " + anim_path)
+        os.remove(anim_path)
 
 def run():
 
@@ -80,45 +84,34 @@ def run():
                 if char in root:
                     character = char
                     break
-            # character = "Ninja" if "Ninja" in root elif "Kitsune" if "Kitsune" in root elif "Barrel" if "Barrel" in root else "Lantern"
             path = root.replace(base_file_path + f"\\{character}\\","").split("\\")
             path = [] if not path else path
             file_path = os.path.join(root,file)
-            print(file_path)
-
-
             file_type = "TPOSE" if "TPOSE" in file_path else "ANIM"
-            # for ftype in file_types:
-            #     if ftype in file_path:
-            #         file_type = ftype
-            #         break
-            
-
 
             # Delete the existing file
             anim_path = os.path.join(character_destination_paths[character],*path,file.split('.')[0]+"_" + file_type + ".fbx")
             print(anim_path)
-            if os.path.exists(anim_path):
-                print("removing " + anim_path)
-                os.remove(anim_path)
+            
 
             if "\\." not in file_path:
                 try:
                     cmds.file(file_path, open=True, force=True)
                     print("Export")
                     if file_type == "TPOSE":
-                        ex.export(character, tpose=True, anim=False,path=path,close=True)
-                        tpose_files.append(file_path)
+                        True
+                        # ex.export(character, tpose=True, anim=False,path=path,close=True)
+                        # tpose_files.append(file_path)
+                        # delete_file(anim_path)
                     elif file_type == "ANIM":
                         ex.export(character, tpose=False, anim=True,path=path,close=True)
                         exported_files.append(file_path)
+                        delete_file(anim_path)
                     else:
                         print("Error exporting " + file_path)
                 except:
                     print("Failed to export " + file_path)
                     failed_files.append(file_path)
-
-            first = False
 
     if failed_files:
         print("These Anims Failed to Export:")
